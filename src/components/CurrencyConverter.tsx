@@ -43,6 +43,12 @@ function CurrencyConverter() {
     setInputValue(inp);
   }
 
+  function swapSelectedCurrencies() {
+    setSelectedCurrencies((prevSelectedCurrencies) => {
+      return [prevSelectedCurrencies[1], prevSelectedCurrencies[0]];
+    });
+  }
+
   function handleSelection(currencyName: string, id: number) {
     setSelectedCurrencies((prevSelectedCurrencies) => {
       const newSelCurrs = [...prevSelectedCurrencies];
