@@ -74,7 +74,7 @@ function CurrencyConverter() {
   }
 
   return (
-    <div className='flex flex-col items-center  gap-12 rounded-xl bg-gray-700 px-28 pt-12 pb-16 text-white'>
+    <div className='m-auto flex flex-col items-center gap-12 rounded-xl bg-gray-700 px-28 pt-12 pb-16 text-white'>
       <h1 className='text-3xl font-bold tracking-widest'>Currency Converter</h1>
 
       <input

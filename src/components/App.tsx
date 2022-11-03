@@ -1,9 +1,11 @@
 import CurrencyConverter from './CurrencyConverter';
+import Attribution from './Attribution';
 
 function App() {
   return (
-    <div className=' flex h-screen items-center justify-center bg-gray-800'>
+    <div className=' flex h-screen flex-col items-center justify-between bg-gray-800'>
       <CurrencyConverter />
+      <Attribution />
     </div>
   );
 }
