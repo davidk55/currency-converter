@@ -12,6 +12,10 @@ class Util {
 
     return num.toString().split('.')[1].length;
   }
+
+  extractStringInBrackets(str: string) {
+    return str.match(/\((.*?)\)/)?.[1];
+  }
 }
 
 export default new Util();

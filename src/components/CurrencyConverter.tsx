@@ -17,6 +17,7 @@ function CurrencyConverter() {
   ]);
 
   const [inputValue, setInputValue] = useState('');
+  const [outputValue, setOutputValue] = useState('');
 
   useEffect(() => {
     applyCourse();
@@ -32,6 +33,21 @@ function CurrencyConverter() {
     }
     setLastestRates();
   }, []);
+
+  function applyCourse() {
+    let rateFrom = 1;
+    const selCurrFrom = util.extractStringInBrackets(selectedCurrencies[0]);
+    if (selCurrFrom) rateFrom = rates[selCurrFrom as keyof typeof rates];
+
+    let rateTo = 1;
+    const selCurrTo = util.extractStringInBrackets(selectedCurrencies[1]);
+    if (selCurrTo) rateTo = rates[selCurrTo as keyof typeof rates];
+
+    const outp = (+inputValue / +rateFrom) * +rateTo;
+
+    if (outp) setOutputValue(outp.toFixed(MAX_DIGITS_AFTER_DECIMAL).toString());
+    else setOutputValue('');
+  }
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
     const inp = e.target.value;
@@ -102,6 +118,7 @@ function CurrencyConverter() {
       </div>
 
       <p className='ml-10 h-10 w-full text-left font-bold'>
+        {outputValue != '' ? `${outputValue} ${selectedCurrencies[1]}` : ''}
       </p>
     </div>
   );
