@@ -1,5 +1,20 @@
+import { useEffect, useState } from 'react';
 import CurrenciesListbox from './CurrenciesListbox';
+import CurrencyService from '../api/CurrencyService';
+
 function CurrencyConverter() {
+  const [currencies, setCurrencies] = useState<any>({});
+  const [rates, setRates] = useState({});
+  useEffect(() => {
+    async function setLastestRates() {
+      const rates = await CurrencyService.getLatestRates();
+      const currencies = await CurrencyService.getCurrencies();
+
+      setRates(rates);
+      setCurrencies(currencies);
+    }
+    setLastestRates();
+  }, []);
   return (
     <div className='flex flex-col items-center  gap-12 rounded-xl bg-gray-700 px-28 pt-12 pb-16 text-white'>
       <h1 className='text-3xl font-bold tracking-widest'>Currency Converter</h1>
