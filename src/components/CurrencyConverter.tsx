@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import CurrenciesListbox from './CurrenciesListbox';
 import CurrencyService from '../api/CurrencyService';
+import util from './../util/Util';
+
+const MAX_INPUT_NUMBER = 100_000_000_000;
+const MAX_DIGITS_AFTER_DECIMAL = 2;
+const MAX_INPUT_CHARACERS = 16;
 
 function CurrencyConverter() {
   const [currencies, setCurrencies] = useState<any>({});
   const [rates, setRates] = useState({});
+  const [inputValue, setInputValue] = useState('');
   useEffect(() => {
     async function setLastestRates() {
       const rates = await CurrencyService.getLatestRates();
@@ -15,11 +21,24 @@ function CurrencyConverter() {
     }
     setLastestRates();
   }, []);
+
+  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const inp = e.target.value;
+    if (inp.length > MAX_INPUT_CHARACERS) return;
+    if (!util.isNumber(inp)) return;
+    if (util.getDigitsAfterDecimal(+inp) > MAX_DIGITS_AFTER_DECIMAL) return;
+    if (+inp > MAX_INPUT_NUMBER) return;
+
+    setInputValue(inp);
+  }
   return (
     <div className='flex flex-col items-center  gap-12 rounded-xl bg-gray-700 px-28 pt-12 pb-16 text-white'>
       <h1 className='text-3xl font-bold tracking-widest'>Currency Converter</h1>
       <input
         className='w-full rounded-lg border border-black px-3 py-1.5 text-black'
+        type='text'
+        name='inputValue'
+        value={inputValue}
         onChange={handleInput}
       />
       <div className='flex w-full flex-col items-center gap-5'>
