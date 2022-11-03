@@ -10,7 +10,18 @@ const MAX_INPUT_CHARACERS = 16;
 function CurrencyConverter() {
   const [currencies, setCurrencies] = useState<any>({});
   const [rates, setRates] = useState({});
+
+  const [selectedCurrencies, setSelectedCurrencies] = useState([
+    'Euro (EUR)',
+    'US Dollar (USD)',
+  ]);
+
   const [inputValue, setInputValue] = useState('');
+
+  useEffect(() => {
+    applyCourse();
+  }, [selectedCurrencies, inputValue, rates, currencies]);
+
   useEffect(() => {
     async function setLastestRates() {
       const rates = await CurrencyService.getLatestRates();
@@ -31,9 +42,19 @@ function CurrencyConverter() {
 
     setInputValue(inp);
   }
+
+  function handleSelection(currencyName: string, id: number) {
+    setSelectedCurrencies((prevSelectedCurrencies) => {
+      const newSelCurrs = [...prevSelectedCurrencies];
+      newSelCurrs[id] = currencyName;
+      return newSelCurrs;
+    });
+  }
+
   return (
     <div className='flex flex-col items-center  gap-12 rounded-xl bg-gray-700 px-28 pt-12 pb-16 text-white'>
       <h1 className='text-3xl font-bold tracking-widest'>Currency Converter</h1>
+
       <input
         className='w-full rounded-lg border border-black px-3 py-1.5 text-black'
         type='text'
@@ -43,7 +64,12 @@ function CurrencyConverter() {
       />
       <div className='flex w-full flex-col items-center gap-5'>
         <CurrenciesListbox
+          selectedCurrency={selectedCurrencies[0]}
+          currencies={currencies}
+          handleSelection={handleSelection}
+          id={0}
         />
+
         <button onClick={swapSelectedCurrencies}>
           <svg
             xmlns='http://www.w3.org/2000/svg'
@@ -60,10 +86,15 @@ function CurrencyConverter() {
             />
           </svg>
         </button>
+
         <CurrenciesListbox
+          currencies={currencies}
+          selectedCurrency={selectedCurrencies[1]}
           handleSelection={handleSelection}
+          id={1}
         />
       </div>
+
       <p className='ml-10 h-10 w-full text-left font-bold'>
       </p>
     </div>
