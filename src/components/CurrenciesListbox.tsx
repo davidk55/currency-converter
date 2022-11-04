@@ -5,29 +5,21 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 interface Props {
   id: number;
   selectedCurrency: string;
-  currencies: any;
+  currencies: Currency[];
   handleSelection: (currencyName: string, id: number) => void;
 }
 interface Currency {
-  name: string;
+  fullName: string;
   symbol: string;
-  id: number;
+  shortName: number;
 }
 
 function CurrenciesListbox(props: Props) {
   const [currencies, setCurrencies] = useState([] as Currency[]);
 
   useEffect(() => {
-    generateCurrencies();
+    setCurrencies(props.currencies);
   }, [props.selectedCurrency, props.currencies]);
-
-  function generateCurrencies() {
-    const currs = [];
-    for (const [key, val] of Object.entries(props.currencies) as any) {
-      currs.push({ id: key, name: val.name, symbol: val.symbol } as Currency);
-    }
-    setCurrencies(currs);
-  }
 
   return (
     <div className='w-full'>
@@ -66,7 +58,7 @@ function CurrenciesListbox(props: Props) {
                       active ? 'bg-gray-800 text-gray-300' : 'text-white'
                     }`
                   }
-                  value={`${curr.name} (${curr.id})`}
+                  value={`${curr.fullName} (${curr.shortName})`}
                 >
                   {({ selected }) => (
                     <>
@@ -75,7 +67,7 @@ function CurrenciesListbox(props: Props) {
                           selected ? 'font-medium' : 'font-normal'
                         }`}
                       >
-                        {`${curr.name} (${curr.id})`}
+                        {`${curr.fullName} (${curr.shortName})`}
                       </span>
                       {selected ? (
                         <span className='absolute inset-y-0 left-0 flex items-center pl-3 text-amber-700'>
