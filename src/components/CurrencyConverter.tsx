@@ -52,10 +52,17 @@ function CurrencyConverter() {
       }
 
       const cleanCurrencies = removeCurrenciesWithNoRates(currencies);
-      setCurrencies(cleanCurrencies);
+      const sortedCurrencies = sortByShortName(cleanCurrencies);
+      setCurrencies(sortedCurrencies);
     }
     generateCurrencies();
   }, []);
+
+  function sortByShortName(currencies: Currency[]) {
+    return currencies.sort((firstCurr, secondCurr) =>
+      firstCurr.shortName.localeCompare(secondCurr.shortName)
+    );
+  }
 
   function removeCurrenciesWithNoRates(currencies: Currency[]) {
     return currencies.filter((currency) => currency.rate != '0');
