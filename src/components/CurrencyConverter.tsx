@@ -7,9 +7,15 @@ const MAX_INPUT_NUMBER = 100_000_000_000;
 const MAX_DIGITS_AFTER_DECIMAL = 2;
 const MAX_INPUT_CHARACERS = 16;
 
+interface Currency {
+  shortName: string;
+  fullName: string;
+  symbol: string;
+  rate: string;
+}
+
 function CurrencyConverter() {
-  const [currencies, setCurrencies] = useState<any>({});
-  const [rates, setRates] = useState({});
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
 
   const [selectedCurrencies, setSelectedCurrencies] = useState([
     'Euro (EUR)',
@@ -21,32 +27,72 @@ function CurrencyConverter() {
 
   useEffect(() => {
     applyCourse();
-  }, [selectedCurrencies, inputValue, rates, currencies]);
+  }, [selectedCurrencies, inputValue, currencies]);
 
   useEffect(() => {
-    async function setLastestRates() {
-      const rates = await CurrencyService.getLatestRates();
-      const currencies = await CurrencyService.getCurrencies();
+    async function generateCurrencies() {
+      const fetchedRates = await CurrencyService.getLatestRates();
+      const fetchedCurrencies = await CurrencyService.getCurrencies();
 
-      setRates(rates);
-      setCurrencies(currencies);
+      let currencies = [] as Currency[];
+      for (const [key, val] of Object.entries(fetchedCurrencies) as any) {
+        const cur = {
+          shortName: key,
+          fullName: val.name,
+          symbol: val.symbol,
+          rate: '0',
+        };
+        currencies.push(cur);
+      }
+      for (const [key, val] of Object.entries(fetchedRates) as any) {
+        currencies = currencies.map((cur) => {
+          if (cur.shortName === key) return { ...cur, rate: val };
+          return cur;
+        });
+      }
+
+      const cleanCurrencies = removeCurrenciesWithNoRates(currencies);
+      setCurrencies(cleanCurrencies);
     }
-    setLastestRates();
+    generateCurrencies();
   }, []);
 
-  function applyCourse() {
-    let rateFrom = 1;
-    const selCurrFrom = util.extractStringInBrackets(selectedCurrencies[0]);
-    if (selCurrFrom) rateFrom = rates[selCurrFrom as keyof typeof rates];
+  function removeCurrenciesWithNoRates(currencies: Currency[]) {
+    return currencies.filter((currency) => currency.rate != '0');
+  }
 
-    let rateTo = 1;
+  function getMatchingCurrency(currencyShortName: string) {
+    const filteredCurrencies = currencies.filter((currency) => {
+      return currency.shortName == currencyShortName;
+    });
+
+    if (filteredCurrencies.length == 1) return filteredCurrencies[0];
+    else return undefined;
+  }
+
+  function applyCourse() {
+    const selCurrFrom = util.extractStringInBrackets(selectedCurrencies[0]);
+    if (!selCurrFrom) return;
+    const matchedCurrFrom = getMatchingCurrency(selCurrFrom);
+    if (!matchedCurrFrom) return;
+
+    const rateFrom = matchedCurrFrom.rate;
+
     const selCurrTo = util.extractStringInBrackets(selectedCurrencies[1]);
-    if (selCurrTo) rateTo = rates[selCurrTo as keyof typeof rates];
+    if (!selCurrTo) return;
+    const matchedCurrTo = getMatchingCurrency(selCurrTo);
+    if (!matchedCurrTo) return;
+
+    const rateTo = matchedCurrTo.rate;
 
     const outp = (+inputValue / +rateFrom) * +rateTo;
 
-    if (outp) setOutputValue(outp.toFixed(MAX_DIGITS_AFTER_DECIMAL).toString());
-    else setOutputValue('');
+    if (!outp) {
+      setOutputValue('');
+      return;
+    }
+
+    setOutputValue(outp.toFixed(MAX_DIGITS_AFTER_DECIMAL).toString());
   }
 
   function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
